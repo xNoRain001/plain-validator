@@ -36,19 +36,23 @@ function _toPropertyKey(arg) {
 }
 
 var regexpList = {
+  url: /^https?:\/\/(([a-zA-Z0-9_-])+(\.)?)*(:\d+)?(\/((\.)?(\?)?=?&?[a-zA-Z0-9_-](\?)?)*)*$/i,
   date: /^[1-2][0-9][0-9][0-9]-[0-1]{0,1}[0-9]-[0-3]{0,1}[0-9]$/,
   email: /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
   phoneNumber: /^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/
 };
 var buildInRules = {
+  url: function url(v) {
+    return regexpList.url.test(v);
+  },
+  date: function date(v) {
+    return regexpList.date.test(v);
+  },
   email: function email(v) {
     return regexpList.email.test(v);
   },
   phoneNumber: function phoneNumber(v) {
     return regexpList.phoneNumber.test(v);
-  },
-  date: function date(v) {
-    return regexpList.date.test(v);
   }
 };
 
@@ -71,6 +75,11 @@ var Rule = /*#__PURE__*/function () {
   return Rule;
 }();
 
+// email -> isEmail
+var transformName = function transformName(name) {
+  return "is".concat(name[0].toUpperCase()).concat(name.slice(1));
+};
+
 var Validator = /*#__PURE__*/function () {
   function Validator() {
     _classCallCheck(this, Validator);
@@ -79,6 +88,8 @@ var Validator = /*#__PURE__*/function () {
   _createClass(Validator, [{
     key: "define",
     value: function define(name, handler) {
+      var _name = transformName(name);
+      Validator.prototype[_name] = handler;
       this.rules.add(name, handler);
     }
   }, {
@@ -92,6 +103,14 @@ var Validator = /*#__PURE__*/function () {
     }
   }]);
   return Validator;
-}();
+}(); // build-in rules alias
+var names = Object.keys(buildInRules);
+var proto = Validator.prototype;
+for (var i = 0, l = names.length; i < l; i++) {
+  var name = names[i];
+  var handler = buildInRules[name];
+  name = transformName(name);
+  proto[name] = handler;
+}
 
 export { Validator as default };

@@ -16,7 +16,7 @@ import Validator from 'plain-validator'
 
 const validator = new Validator()
 
-validator.define('mustBeANumber', v => typeof v === 'number')
+validator.define('foo', v => v === 'foo')
 
 export default validator
 ```
@@ -25,7 +25,11 @@ export default validator
 // validate.js
 import validator from './rules.js'
 
-validator.validate('mustBeANumber', 1) // -> true
+validator.validate('foo', 'foo') // -> true
+validator.validate('foo', 'bar') // -> false
+
+// or
+validator.isFoo('foo') // -> true
 ```
 
 ## Built-in Rules
@@ -40,6 +44,9 @@ validator.validate('mustBeANumber', 1) // -> true
 
 ```js
 validator.validate('email', 'foo@bar.com') // -> true
+
+// or
+validator.isEmail('foo@bar.com')
 ```
 
 ### Rewrite
